@@ -1,0 +1,72 @@
+flowchart TD
+
+    A["Entrada tokens\nseq_len 6\nex paciente com dor intensa"]
+
+    B["Tensor de entrada\nbatch 6"]
+
+    A --> B
+
+    C["Embedding Layer\nvocab_size V\nembedding_dim 16\nsaida batch seq_len 16"]
+
+    B --> C
+
+    D["Tensor embeddings\nbatch seq_len 16"]
+
+    C --> D
+
+    E["Mask\nvalores 0 ou 1\nbatch seq_len"]
+
+    B --> E
+
+    F[Weighted Pooling bloco principal]
+
+    D --> F
+    E --> F
+
+    subgraph WP [Detalhamento Weighted Pooling]
+
+        F1["Entrada embeddings\nbatch seq_len 16"]
+
+        F2["Linear scorer\n16 para 1\nparametros 16 pesos mais 1 bias"]
+
+        F3["Scores\nbatch seq_len 1"]
+
+        F4["Remocao dimensao final\nbatch seq_len"]
+
+        F5["Aplicacao de mask\nvalores invalido recebem muito negativo"]
+
+        F6["Softmax ao longo da sequencia\nbatch seq_len"]
+
+        F7["Pesos de atencao\nsoma igual a 1"]
+
+        F8["Expansao pesos\nbatch seq_len 1"]
+
+        F9["Multiplicacao elemento a elemento\nembeddings vezes pesos"]
+
+        F10["Tensor ponderado\nbatch seq_len 16"]
+
+        F11[Soma ao longo da sequencia]
+
+        F12["Saida pooling\nbatch 16"]
+
+        F1 --> F2
+        F2 --> F3
+        F3 --> F4
+        F4 --> F5
+        F5 --> F6
+        F6 --> F7
+        F7 --> F8
+        F8 --> F9
+        F9 --> F10
+        F10 --> F11
+        F11 --> F12
+
+    end
+
+    F --> G["Representacao global\nbatch 16"]
+
+    G --> H["Camada Linear final\n16 para 2\nparametros 32 pesos mais 2 bias"]
+
+    H --> I["Logits\nbatch 2"]
+
+    I --> J["Predicao\nclasse 0 ou 1"]
